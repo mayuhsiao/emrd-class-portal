@@ -1,0 +1,14 @@
+# 原始素材（約 320 MB，含同學名單與未修圖的照片）
+素材/
+
+# Claude Code 本機設定
+.claude/
+
+# Python
+__pycache__/
+*.pyc
+
+# 系統檔
+Thumbs.db
+desktop.ini
+.DS_Store

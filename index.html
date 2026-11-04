@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>臺科大 EMRD × SEMI-EMRD｜班級入口</title>
+  <meta name="description" content="國立臺灣科技大學 研發碩士在職專班 × 半導體研發碩士在職專班 114・115 級班級入口：活動花絮、幸運抽獎、交換禮物、同學任職企業。">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#050a18">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <!-- 線上字型（沒有網路時自動改用系統字型，功能不受影響） -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@600;900&display=swap">
+  <link rel="preload" as="image" href="assets/portal/hero/h01.webp">
+  <link rel="stylesheet" href="css/portal.css">
+  <script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+  <a class="skip" href="#entry">跳至主要內容</a>
+
+  <!-- ===== 導覽列 ===== -->
+  <header class="nav" id="nav">
+    <a class="nav-brand" href="#top" aria-label="回到頁首">
+      <img class="nav-badge" src="assets/emrd-logo.png" alt="NTUST EMRD" width="44" height="44">
+      <img class="nav-ntust" src="assets/ntust-logo.png" alt="國立臺灣科技大學" width="208" height="40">
+    </a>
+    <button class="nav-toggle" id="navToggle" type="button" aria-label="開啟選單" aria-expanded="false" aria-controls="navLinks"><i></i><i></i></button>
+    <nav class="nav-links" id="navLinks" aria-label="主要導覽">
+      <a href="#film">臺科大影片</a>
+      <a href="#moments">活動花絮</a>
+      <a href="#companies">同學企業</a>
+      <a href="#links">班級網站</a>
+      <a class="nav-cta" href="lucky-draw.html?mode=exchange">交換禮物</a>
+      <a class="nav-cta gold" href="lucky-draw.html?mode=prize">幸運抽獎</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- ===== 首屏：活動照片輪播 ===== -->
+    <section class="hero" id="top" aria-roledescription="carousel" aria-label="活動照片輪播">
+      <div class="hero-stage" id="heroStage">
+        <div class="slide is-active"><img src="assets/portal/hero/h01.webp" alt="校友會大合照 · 文山農場"></div>
+      </div>
+      <div class="hero-shade" aria-hidden="true"></div>
+      <div class="hero-blueprint" aria-hidden="true"></div>
+      <div class="hero-sweep" id="heroSweep" aria-hidden="true"></div>
+      <div class="hero-hud" aria-hidden="true">
+        <span class="hud-corner tl"></span><span class="hud-corner tr"></span>
+        <span class="hud-corner bl"></span><span class="hud-corner br"></span>
+      </div>
+
+      <div class="hero-copy">
+        <div class="hero-head">
+          <h1 class="hero-title">
+            <span class="ln"><span>研發之路</span></span>
+            <span class="ln"><span class="grad">同行致遠</span></span>
+          </h1>
+          <p class="hero-lede">國立臺灣科技大學 研發碩士在職專班 × 半導體研發碩士在職專班<span class="hero-class">114・115 級</span></p>
+        </div>
+        <div class="hero-cta">
+          <a class="btn gold" href="lucky-draw.html?mode=prize">幸運抽獎<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
+          <a class="btn glass" href="lucky-draw.html?mode=exchange">交換禮物<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
+          <a class="btn line" href="#film"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg>臺科大影片</a>
+        </div>
+      </div>
+
+      <div class="hero-bar">
+        <div class="hero-cap" id="heroCap">
+          <span class="hero-idx"><b>01</b><i>/ 11</i></span>
+          <span class="hero-txt"><b>校友會大合照</b><small>文山農場 · 2026.10.18</small></span>
+        </div>
+        <div class="hero-ticks" id="heroTicks" role="group" aria-label="選擇輪播項目"></div>
+        <div class="hero-ctrl">
+          <button type="button" id="heroPrev" aria-label="上一張"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+          <button type="button" id="heroPlay" aria-label="暫停輪播"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="ico-pause" d="M8.5 5v14M15.5 5v14"/><path class="ico-play" d="M8 5.5v13l10.5-6.5z"/></svg></button>
+          <button type="button" id="heroNext" aria-label="下一張"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 01 年終宴會：抽獎與交換禮物 ===== -->
+    <section class="entry section" id="entry">
+      <div class="wrap">
+        <header class="sec-head reveal">
+          <div>
+            <p class="sec-no"><span>01</span>YEAR-END BANQUET</p>
+            <h2>年終宴會，從這裡開始</h2>
+          </div>
+          <p class="sec-desc">抽獎與交換禮物都已準備好。進入後按空白鍵開始、再按一次開獎，簡報筆也能遠端操作。</p>
+        </header>
+
+        <div class="duo">
+          <a class="card card-draw reveal" href="lucky-draw.html?mode=prize">
+            <span class="corner tl"></span><span class="corner br"></span>
+            <div class="card-body">
+              <p class="card-kicker">LUCKY DRAW</p>
+              <h3>幸運抽獎</h3>
+              <p class="card-text">3D 滾筒開獎，抽過自動剔除。可一次抽 1 或 2 人，名單與結果都會保存。</p>
+              <div class="card-foot">
+                <span class="chip" id="prizeStatus">名單準備中</span>
+                <span class="go">進入抽獎<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></span>
+              </div>
+            </div>
+            <div class="card-art">
+              <svg class="wafer" id="waferArt" viewBox="-170 -170 340 340" role="img" aria-label="晶圓示意圖：每一顆晶粒代表一位同學"></svg>
+            </div>
+          </a>
+
+          <a class="card card-swap reveal" href="lucky-draw.html?mode=exchange" style="--d:90ms">
+            <span class="corner tl"></span><span class="corner br"></span>
+            <div class="card-body">
+              <p class="card-kicker">GIFT EXCHANGE</p>
+              <h3>交換禮物</h3>
+              <p class="card-text">A 抽到 B 的禮物，保證不會抽到自己；隨機或接力決定抽獎人，最後一位也不會卡關。</p>
+              <div class="card-foot">
+                <span class="chip" id="swapStatus">名單準備中</span>
+                <span class="go">開始交換<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></span>
+              </div>
+            </div>
+            <div class="card-art">
+              <svg class="swap" viewBox="0 0 340 340" role="img" aria-label="兩顆綁著緞帶的晶片互相交換">
+                <defs>
+                  <g id="giftChip">
+                    <path class="a-pin" d="M-36-60v14M-18-60v14M0-60v14M18-60v14M36-60v14M-36 46v14M-18 46v14M0 46v14M18 46v14M36 46v14M-60-36h14M-60-18h14M-60 0h14M-60 18h14M-60 36h14M46-36h14M46-18h14M46 0h14M46 18h14M46 36h14"/>
+                    <rect class="a-body" x="-46" y="-46" width="92" height="92" rx="7"/>
+                    <path class="a-ribbon" d="M0-46V46M-46 0H46"/>
+                    <path class="a-ribbon" d="M0-3c-7-15-27-18-27-7s17 13 27 7zM0-3c7-15 27-18 27-7s-17 13-27 7z"/>
+                  </g>
+                </defs>
+                <path class="a-guide" d="M20 170h300M170 20v300"/>
+                <use href="#giftChip" transform="translate(100 104)"/>
+                <use href="#giftChip" transform="translate(240 236)"/>
+                <path class="a-trace" d="M160 86h56a24 24 0 0 1 24 24v66"/>
+                <path class="a-trace" d="M180 254h-56a24 24 0 0 1-24-24v-66"/>
+                <path class="a-pulse" d="M160 86h56a24 24 0 0 1 24 24v66"/>
+                <path class="a-pulse pulse-b" d="M180 254h-56a24 24 0 0 1-24-24v-66"/>
+                <text class="a-label" x="100" y="28" text-anchor="middle">GIFT A</text>
+                <text class="a-label" x="240" y="326" text-anchor="middle">GIFT B</text>
+                <text class="a-code" x="326" y="30" text-anchor="end">抽獎人 ID !== 禮物 ID</text>
+              </svg>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 02 臺科大形象動畫 ===== -->
+    <section class="film" id="film" aria-label="臺科大形象動畫">
+      <div class="film-sticky">
+        <div class="film-frame" id="filmFrame">
+          <video id="filmVideo" src="assets/video/hero-bg.mp4" poster="assets/portal/film-poster.webp" muted loop playsinline preload="metadata" aria-label="臺科大形象動畫：晶片藍圖、晶圓到 EMRD 徽章"></video>
+          <div class="film-shade" aria-hidden="true"></div>
+        </div>
+        <div class="film-copy">
+          <p class="sec-no"><span>02</span>TAIWAN TECH</p>
+          <h2>從藍圖到晶圓<br><span class="grad">從課堂到產業</span></h2>
+          <p class="film-text">來自 61 家企業的同學，在國立臺灣科技大學一起研發、一起前行。</p>
+        </div>
+        <dl class="film-stats">
+          <div><dt>學程</dt><dd><b>2</b><small>EMRD × SEMI-EMRD</small></dd></div>
+          <div><dt>屆別</dt><dd><b>114</b><i>・</i><b>115</b><small>級</small></dd></div>
+          <div><dt>任職企業</dt><dd><b data-count="61">61</b><small>家</small></dd></div>
+          <div><dt>歷屆論文</dt><dd><b data-count="229">229</b><small>篇（105–114 學年度）</small></dd></div>
+        </dl>
+        <button class="film-toggle" id="filmToggle" type="button" aria-label="暫停影片"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="ico-pause" d="M8.5 5v14M15.5 5v14"/><path class="ico-play" d="M8 5.5v13l10.5-6.5z"/></svg></button>
+      </div>
+    </section>
+
+    <!-- ===== 03 活動花絮 ===== -->
+    <section class="moments section" id="moments">
+      <div class="wrap">
+        <header class="sec-head reveal">
+          <div>
+            <p class="sec-no"><span>03</span>MOMENTS</p>
+            <h2>一起走過的時光</h2>
+          </div>
+          <div class="seg" role="group" aria-label="篩選照片">
+            <button type="button" class="on" data-kind="all">全部</button>
+            <button type="button" data-kind="event">校友會</button>
+            <button type="button" data-kind="class">課堂</button>
+          </div>
+        </header>
+        <div class="masonry" id="masonry"></div>
+        <div class="more"><button type="button" class="btn line" id="moreBtn">看全部</button></div>
+      </div>
+    </section>
+
+    <!-- ===== 04 同學企業 Logo 牆 ===== -->
+    <section class="companies section" id="companies">
+      <div class="wafer-bg" aria-hidden="true"></div>
+      <div class="wrap">
+        <header class="sec-head reveal">
+          <div>
+            <p class="sec-no"><span>04</span>COMPANIES</p>
+            <h2>EMRD 同學任職企業</h2>
+          </div>
+          <div class="co-count">
+            <p><b data-count="61">61</b><span>家企業</span></p>
+            <small>資料：114–115 級同學目前服務單位</small>
+          </div>
+        </header>
+        <ul class="logo-wall" id="logoWall"></ul>
+      </div>
+    </section>
+
+    <!-- ===== 05 班級網站 ===== -->
+    <section class="links section" id="links">
+      <div class="wrap">
+        <header class="sec-head reveal">
+          <div>
+            <p class="sec-no"><span>05</span>CLASS SITE</p>
+            <h2>班級網站</h2>
+          </div>
+          <a class="btn line" href="https://emrd115.netlify.app/" target="_blank" rel="noopener">開啟班級網站<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></a>
+        </header>
+        <div class="link-grid" id="linkGrid"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="wrap foot-in">
+      <div class="foot-brand">
+        <img src="assets/emrd-logo.png" alt="NTUST EMRD" width="56" height="56">
+        <div>
+          <img class="foot-ntust" src="assets/ntust-logo.png" alt="國立臺灣科技大學" width="240" height="46">
+          <p>研發碩士在職專班 × 半導體研發碩士在職專班</p>
+          <p class="foot-geo">25.013°N 121.541°E · TAIPEI</p>
+        </div>
+      </div>
+      <nav class="foot-nav" aria-label="頁尾連結">
+        <a href="lucky-draw.html?mode=prize">幸運抽獎</a>
+        <a href="lucky-draw.html?mode=exchange">交換禮物</a>
+        <a href="https://emrd115.netlify.app/" target="_blank" rel="noopener">班級網站</a>
+        <a href="#top">回到頂端</a>
+      </nav>
+    </div>
+  </footer>
+
+  <!-- ===== 照片燈箱 ===== -->
+  <dialog class="lightbox" id="lightbox" aria-label="照片檢視">
+    <button type="button" class="lb-close" id="lbClose" aria-label="關閉"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    <button type="button" class="lb-nav prev" id="lbPrev" aria-label="上一張"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <figure>
+      <img id="lbImg" alt="">
+      <figcaption><b id="lbCap"></b><span id="lbMeta"></span></figcaption>
+    </figure>
+    <button type="button" class="lb-nav next" id="lbNext" aria-label="下一張"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+  </dialog>
+
+  <script src="js/data.js"></script>
+  <script src="js/portal-data.js"></script>
+  <script src="js/portal.js"></script>
+</body>
+</html>
