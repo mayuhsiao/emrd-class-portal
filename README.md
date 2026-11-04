@@ -48,7 +48,7 @@ python tools/build_portal.py hero gallery
 - **只需要上傳**：`index.html`、`lucky-draw.html`、`css/`、`js/`、`assets/`、`photos/`
 - **不要上傳**：`素材/`（約 320 MB 原始檔）、`tools/`、`.claude/`
 - 首頁目前設定 `noindex`，搜尋引擎不會收錄。因為網站有同學與小孩的照片，要移除這項設定（`index.html` 的 `robots`）前，請先確認大家同意公開。
-- 這個 repo 含有個資：`js/data.js` 有學員姓名，`photos/` 和 `assets/portal/` 有學員與小孩的照片。推到 GitHub 請用私人 repo；這些資料一旦進入公開的歷史紀錄，就很難完全清除。
+- 這個 repo 是公開的：`js/data.js` 有學員姓名，`photos/` 和 `assets/portal/` 有學員與小孩的照片。有人要求移除照片時，除了刪除檔案，也要清除 git 歷史，並請 GitHub 清除快取。
 
 ---
 
@@ -113,7 +113,7 @@ python tools/build_portal.py hero gallery
 
 照片會自動裁成正方形（直式照片保留上半部的臉），iPhone 的 HEIC 格式請先轉成 JPG。
 
-目前 `photos` 資料夾裡的 33 張照片取自班級網站專案 `E:\web_project\web-emrd`（115 級成員照片），已依臉部位置裁成 360×360 的正方形；陳俊宏目前沒有照片，會顯示名字頭像。
+目前 `photos` 資料夾裡的 33 張照片取自班級網站專案 `web-emrd`（115 級成員照片），已依臉部位置裁成 360×360 的正方形；陳俊宏目前沒有照片，會顯示名字頭像。
 
 ## 紀錄、查核與匯出
 
