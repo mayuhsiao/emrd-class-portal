@@ -47,7 +47,7 @@ python tools/build_portal.py hero gallery
 
 - **只需要上傳**：`index.html`、`lucky-draw.html`、`css/`、`js/`、`assets/`、`photos/`
 - **不要上傳**：`素材/`（約 320 MB 原始檔）、`tools/`、`.claude/`
-- 首頁目前設定 `noindex`，搜尋引擎不會收錄。因為網站有同學與小孩的照片，要移除這項設定（`index.html` 的 `robots`）前，請先確認大家同意公開。
+- `index.html` 和 `lucky-draw.html` 都設定了 `noindex`，要求搜尋引擎不要收錄這兩個頁面；repo 裡的檔案不受這項設定影響。因為網站有同學與小孩的照片，要移除這項設定（兩個頁面的 `robots`）前，請先確認大家同意公開。
 - 這個 repo 是公開的：`js/data.js` 有學員姓名，`photos/` 和 `assets/portal/` 有學員與小孩的照片。有人要求移除照片時，除了刪除檔案，也要清除 git 歷史，並請 GitHub 清除快取。
 
 ---
