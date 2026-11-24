@@ -2,74 +2,240 @@
 window.PORTAL = {
  "hero": [
   {
-   "src": "assets/portal/hero/h01.webp",
+   "chapter": "企業",
+   "title": "EMRD 同學任職企業",
+   "meta": "61 家企業 · 114–115 級",
+   "ox": 50,
+   "oy": 30,
+   "type": "film",
+   "key": "logo-wall",
+   "src": "assets/video/logo-wall.mp4",
+   "sec": 14,
+   "poster": "assets/portal/logo-wall-poster.webp",
+   "srcM": "assets/video/logo-wall-m.mp4",
+   "posterM": "assets/portal/logo-wall-poster-m.webp"
+  },
+  {
+   "chapter": "校友會",
    "title": "校友會大合照",
    "meta": "文山農場 · 2026.10.18",
    "ox": 50,
-   "oy": 40
+   "oy": 40,
+   "type": "img",
+   "src": "assets/portal/hero/alumni-01.webp",
+   "sec": 5.5
   },
   {
-   "src": "assets/portal/hero/h02.webp",
-   "title": "文山農場林蔭道",
-   "meta": "文山農場 · 2026.10.18",
-   "ox": 62,
-   "oy": 55
+   "chapter": "校友會",
+   "title": "全國 EMBA 校園馬拉松接力賽",
+   "meta": "第 13 屆 · 2025",
+   "ox": 50,
+   "oy": 40,
+   "type": "img",
+   "src": "assets/portal/hero/alumni-02.webp",
+   "sec": 5.5
   },
   {
-   "src": "assets/portal/hero/h03.webp",
-   "title": "相見歡",
-   "meta": "文山農場 · 2026.10.18",
-   "ox": 66,
-   "oy": 38
+   "chapter": "校友會",
+   "title": "校慶繞場",
+   "meta": "臺科大 114 年運動大會",
+   "ox": 52,
+   "oy": 40,
+   "type": "img",
+   "src": "assets/portal/hero/alumni-03.webp",
+   "sec": 5.5
   },
   {
-   "src": "assets/portal/hero/h04.webp",
-   "title": "同行的夥伴",
-   "meta": "文山農場 · 2026.10.18",
-   "ox": 58,
-   "oy": 30
+   "chapter": "校友會",
+   "title": "校友會烤肉",
+   "meta": "高階科技研發碩士校友會",
+   "ox": 52,
+   "oy": 32,
+   "type": "img",
+   "src": "assets/portal/hero/alumni-04.webp",
+   "sec": 5.5
   },
   {
-   "src": "assets/portal/hero/h05.webp",
-   "title": "活動現場",
-   "meta": "文山農場 · 2026.10.18",
-   "ox": 62,
-   "oy": 30
+   "chapter": "校友會",
+   "title": "校友晚宴",
+   "meta": "2024.03.23",
+   "ox": 52,
+   "oy": 30,
+   "type": "img",
+   "src": "assets/portal/hero/alumni-05.webp",
+   "sec": 5.5
   },
   {
-   "src": "assets/portal/hero/h06.webp",
-   "title": "笑聲不斷",
-   "meta": "文山農場 · 2026.10.18",
-   "ox": 62,
-   "oy": 36
+   "chapter": "校友會",
+   "title": "EMRD 新生營",
+   "meta": "高階科技研發碩士學位學程",
+   "ox": 54,
+   "oy": 34,
+   "type": "img",
+   "src": "assets/portal/hero/alumni-06.webp",
+   "sec": 5.5
   },
   {
-   "src": "assets/portal/hero/h07.webp",
-   "title": "涼亭下的相聚",
-   "meta": "文山農場 · 2026.10.18",
-   "ox": 56,
-   "oy": 32
+   "chapter": "校友會",
+   "title": "新生營",
+   "meta": "2023.08.13",
+   "ox": 48,
+   "oy": 36,
+   "type": "img",
+   "src": "assets/portal/hero/alumni-07.webp",
+   "sec": 5.5
   },
   {
-   "src": "assets/portal/hero/h08.webp",
-   "title": "青山下的合影",
-   "meta": "文山農場 · 2026.10.18",
-   "ox": 62,
-   "oy": 36
+   "chapter": "臺科大",
+   "title": "臺科大形象動畫",
+   "meta": "NTUST · EMRD",
+   "ox": 50,
+   "oy": 50,
+   "type": "film",
+   "key": "hero-bg",
+   "src": "assets/video/hero-bg.mp4",
+   "sec": 15,
+   "poster": "assets/portal/film-first.webp"
   },
   {
-   "src": "assets/portal/hero/h09.webp",
+   "chapter": "課堂",
    "title": "課堂合影",
    "meta": "臺科大 · 2026.10.17",
    "ox": 52,
-   "oy": 34
+   "oy": 40,
+   "type": "img",
+   "src": "assets/portal/hero/class-01.webp",
+   "sec": 5.5
   },
   {
-   "src": "assets/portal/hero/h10.webp",
+   "chapter": "課堂",
+   "title": "彭文彥老師",
+   "meta": "臺科大 · 2026.11.19",
+   "ox": 30,
+   "oy": 34,
+   "type": "img",
+   "src": "assets/portal/hero/class-02.webp",
+   "sec": 5.5
+  },
+  {
+   "chapter": "課堂",
+   "title": "課堂講授",
+   "meta": "臺科大 · 2026.09.12",
+   "ox": 30,
+   "oy": 38,
+   "type": "img",
+   "src": "assets/portal/hero/class-03.webp",
+   "sec": 5.5
+  },
+  {
+   "chapter": "課堂",
+   "title": "課堂合影",
+   "meta": "臺科大 · 2026.09.12",
+   "ox": 54,
+   "oy": 40,
+   "type": "img",
+   "src": "assets/portal/hero/class-04.webp",
+   "sec": 5.5
+  },
+  {
+   "chapter": "課堂",
+   "title": "財務管理課堂",
+   "meta": "臺科大 · 2026.10.17",
+   "ox": 72,
+   "oy": 42,
+   "type": "img",
+   "src": "assets/portal/hero/class-05.webp",
+   "sec": 5.5
+  },
+  {
+   "chapter": "課堂",
+   "title": "專注聽講",
+   "meta": "臺科大 · 2026.09.12",
+   "ox": 42,
+   "oy": 38,
+   "type": "img",
+   "src": "assets/portal/hero/class-06.webp",
+   "sec": 5.5
+  },
+  {
+   "chapter": "課堂",
    "title": "課堂時光",
    "meta": "臺科大 · 2026.09.17",
    "ox": 60,
-   "oy": 42
+   "oy": 42,
+   "type": "img",
+   "src": "assets/portal/hero/class-07.webp",
+   "sec": 5.5
+  },
+  {
+   "chapter": "文山農場",
+   "title": "文山農場林蔭道",
+   "meta": "文山農場 · 2026.10.18",
+   "ox": 62,
+   "oy": 55,
+   "type": "img",
+   "src": "assets/portal/hero/farm-01.webp",
+   "sec": 5.5
+  },
+  {
+   "chapter": "文山農場",
+   "title": "相見歡",
+   "meta": "文山農場 · 2026.10.18",
+   "ox": 66,
+   "oy": 38,
+   "type": "img",
+   "src": "assets/portal/hero/farm-02.webp",
+   "sec": 5.5
+  },
+  {
+   "chapter": "文山農場",
+   "title": "同行的夥伴",
+   "meta": "文山農場 · 2026.10.18",
+   "ox": 58,
+   "oy": 30,
+   "type": "img",
+   "src": "assets/portal/hero/farm-03.webp",
+   "sec": 5.5
+  },
+  {
+   "chapter": "文山農場",
+   "title": "活動現場",
+   "meta": "文山農場 · 2026.10.18",
+   "ox": 62,
+   "oy": 30,
+   "type": "img",
+   "src": "assets/portal/hero/farm-04.webp",
+   "sec": 5.5
+  },
+  {
+   "chapter": "文山農場",
+   "title": "笑聲不斷",
+   "meta": "文山農場 · 2026.10.18",
+   "ox": 62,
+   "oy": 36,
+   "type": "img",
+   "src": "assets/portal/hero/farm-05.webp",
+   "sec": 5.5
+  },
+  {
+   "chapter": "文山農場",
+   "title": "涼亭下的相聚",
+   "meta": "文山農場 · 2026.10.18",
+   "ox": 56,
+   "oy": 32,
+   "type": "img",
+   "src": "assets/portal/hero/farm-06.webp",
+   "sec": 5.5
+  },
+  {
+   "chapter": "文山農場",
+   "title": "青山下的合影",
+   "meta": "文山農場 · 2026.10.18",
+   "ox": 62,
+   "oy": 36,
+   "type": "img",
+   "src": "assets/portal/hero/farm-07.webp",
+   "sec": 5.5
   }
  ],
  "logos": [
@@ -865,6 +1031,5 @@ window.PORTAL = {
    "date": "2026.10.18"
   }
  ],
- "galleryFirst": 18,
- "heroFilmAfter": 8
+ "galleryFirst": 18
 };

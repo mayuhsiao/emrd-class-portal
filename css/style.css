@@ -384,8 +384,13 @@ body.is-revealed .marquee i { animation: blinkAll .5s steps(2, jump-none) infini
 }
 .payline i:first-child { left: -7px; border-left-color: var(--gold); }
 .payline i:last-child { right: -7px; border-right-color: var(--gold); }
-.reel.spinning .payline { animation: payPulse .45s ease-in-out infinite alternate; }
-@keyframes payPulse { to { box-shadow: 0 0 30px rgba(255, 200, 80, .8), inset 0 0 40px rgba(255, 200, 80, .25); } }
+/* 光暈畫在偽元素上、只動透明度，轉盤再多也不用一直重畫陰影 */
+.payline::after {
+  content: ""; position: absolute; inset: -2px 0; pointer-events: none; opacity: 0;
+  box-shadow: 0 0 30px rgba(255, 200, 80, .8), inset 0 0 40px rgba(255, 200, 80, .25);
+}
+.reel.spinning .payline::after { animation: payPulse .45s ease-in-out infinite alternate; }
+@keyframes payPulse { from { opacity: .1; } to { opacity: 1; } }
 .reel-glass {
   position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
   background:
@@ -437,6 +442,29 @@ body.is-revealed .marquee i { animation: blinkAll .5s steps(2, jump-none) infini
 @keyframes chev { 0%, 100% { opacity: .15; } 40% { opacity: 1; } }
 body.is-spinning .connector .chev b { animation-duration: .45s; }
 .connector .pairno { font-family: var(--f-num); font-size: 11px; letter-spacing: .25em; color: var(--muted); }
+
+/* 一次抽 3 組以上（交換禮物抽 5 人，最後一輪抽餘數）：每組一列、名字放大佔滿 */
+.pair-rows:is(.rows-3, .rows-4, .rows-5) { gap: clamp(7px, 1.15vh, 16px); padding-top: 1.6vh; }
+.pair-rows:is(.rows-3, .rows-4) { gap: clamp(10px, 1.8vh, 26px); }
+.pair-rows:is(.rows-3, .rows-4, .rows-5) .reel-window { border-radius: 16px; }
+.pair-rows:is(.rows-3, .rows-4, .rows-5) .reel-shade {
+  background: linear-gradient(180deg, rgba(3, 6, 18, .9) 0%, rgba(3, 6, 18, 0) 22%, rgba(3, 6, 18, 0) 78%, rgba(3, 6, 18, .9) 100%);
+}
+.pair-rows:is(.rows-3, .rows-4, .rows-5) .payline i { border-width: 9px; }
+.pair-rows:is(.rows-3, .rows-4, .rows-5) .reel.spinning .face { text-shadow: none; }
+.pair-rows:is(.rows-3, .rows-4, .rows-5) .connector { flex-direction: row; width: clamp(92px, 8.4vw, 176px); gap: clamp(4px, .5vw, 10px); padding-top: 0; }
+.pair-rows:is(.rows-3, .rows-4, .rows-5) .connector .gift { font-size: clamp(18px, 3vh, 36px); }
+.pair-rows:is(.rows-3, .rows-4, .rows-5) .connector .lbl { display: none; }
+.pair-rows:is(.rows-3, .rows-4, .rows-5) .connector .chev b { width: clamp(9px, .8vw, 15px); height: clamp(9px, .8vw, 15px); border-width: 3px 3px 0 0; }
+.pair-rows:is(.rows-3, .rows-4, .rows-5) .connector .pairno {
+  order: -1; display: grid; place-items: center; flex: none; width: 1.75em; height: 1.75em; border-radius: 50%;
+  font-size: clamp(11px, 1.5vh, 18px); letter-spacing: 0; color: #2a1600; background: var(--gold);
+  box-shadow: 0 0 12px rgba(255, 200, 80, .45);
+}
+.reel-locked.compact .reel-cap { display: none; }
+.reel-locked.compact .locked-body { display: flex; align-items: center; justify-content: center; gap: .8em; }
+.reel-locked.compact .locked-name { font-size: min(52cqh, 11cqw); }
+.reel-locked.compact .locked-tip { margin: 0; font-size: min(19cqh, 3.4cqw); letter-spacing: .12em; }
 
 /* 舞台訊息（抽完 / 名單不足） */
 .stage-msg { text-align: center; padding: 2vh 2vw; }
@@ -679,6 +707,25 @@ body[data-mode="prize"] .cele-ribbon { background: linear-gradient(180deg, #7aa4
 .cele-pair .arrow .chev b:nth-child(3) { animation-delay: .3s; }
 .cele-list.n2 { gap: 3vh; }
 .cele-list.n2 .cele-pair + .cele-pair { padding-top: 3vh; border-top: 1px dashed rgba(255, 214, 107, .3); }
+/* 一次開 3 組以上：每組一列 */
+.cele-card.wide { width: min(1320px, 94vw); }
+.cele-list.many { --row: calc((100vh - 23vh - 25.5vh) / var(--n)); gap: clamp(3px, .7vh, 10px); }
+.cele-list.many .cele-pair {
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 1.4vw; padding: clamp(3px, .7vh, 10px) 1.2vw; border-radius: 16px;
+  background: linear-gradient(90deg, rgba(255, 214, 107, .02), rgba(255, 214, 107, .1) 50%, rgba(255, 214, 107, .02));
+  animation: pairIn .5s cubic-bezier(.2, .8, .3, 1) both; animation-delay: var(--d, 0s);
+}
+@keyframes pairIn { from { opacity: 0; transform: translateX(-24px); } }
+.cele-list.many .side { flex-direction: row; align-items: center; justify-content: flex-start; gap: .9vw; }
+.cele-list.many .side:first-child { justify-content: flex-end; }
+.cele-list.many .side small { display: none; }
+.cele-list.many .side:first-child .who-row { flex-direction: row-reverse; }
+.cele-list.many .who-row { flex-direction: row; gap: .9vw; }
+.cele-list.many .cele-pair .cele-ava { --s: clamp(34px, min(calc(var(--row) * .66), 9.4vh), 104px); margin: 0; }
+.cele-list.many .cele-pair .cele-name { font-size: clamp(24px, min(calc(var(--row) * .5), 7vh, 4.1vw), 78px); }
+.cele-list.many .cele-pair em { margin: 0; font-size: clamp(12px, min(calc(var(--row) * .2), 2.2vh), 24px); letter-spacing: .06em; white-space: nowrap; }
+.cele-list.many .arrow { flex-direction: row; gap: .5em; font-size: clamp(12px, min(calc(var(--row) * .22), 2.3vh), 26px); letter-spacing: .08em; white-space: nowrap; }
+.cele-list.many .arrow .chev b { border-width: 4px 4px 0 0; width: .78em; height: .78em; }
 .cele-next { margin-top: 2.4vh; font-size: clamp(14px, 2.2vh, 26px); color: #ffe9a8; letter-spacing: .08em; }
 .cele-next b { color: #fff; font-size: 1.15em; }
 .cele-actions { margin-top: 1.8vh; }
@@ -808,6 +855,14 @@ body[data-mode="prize"] .cele-ribbon { background: linear-gradient(180deg, #7aa4
   .connector .chev { transform: rotate(90deg); }
   .cele-pair { grid-template-columns: 1fr; }
   .cele-pair .arrow .chev { transform: rotate(90deg); }
+  .pair-rows:is(.rows-3, .rows-4, .rows-5) .pair-row { flex-direction: row; }
+  .pair-rows:is(.rows-3, .rows-4, .rows-5) .connector { width: auto; }
+  .pair-rows:is(.rows-3, .rows-4, .rows-5) .connector .gift,
+  .pair-rows:is(.rows-3, .rows-4, .rows-5) .connector .chev b:nth-child(n + 2) { display: none; }
+  .pair-rows:is(.rows-3, .rows-4, .rows-5) .connector .chev { transform: none; }
+  .cele-list.many .cele-pair { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); }
+  .cele-list.many .arrow .chev { transform: none; }
+  .cele-list.many .arrow span, .cele-list.many .cele-pair em { display: none; }
 }
 @media (max-height: 720px) {
   .tagline { display: none; }

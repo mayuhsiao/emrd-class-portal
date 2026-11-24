@@ -87,6 +87,12 @@
     return L.chainCandidates(last, drawersLeft());
   }
 
+  const isMany = (round) => !!round && round.mode === 'exchange' && round.pairs.length > 2;
+
+  /** 一次抽幾人：交換禮物與抽禮物分開記 */
+  const COUNTS = { exchange: [1, 2, 5], prize: [1, 2] };
+  const countOf = (mode) => (mode === 'exchange' ? S().exchange.count : S().count);
+
   /** 下一輪要怎麼抽（或為什麼不能抽） */
   function plan() {
     const s = S();
@@ -102,7 +108,7 @@
     if (s.participants.length < 2) return { kind: 'too-few' };
     if (!G.length) return { kind: 'no-gift' };
     if (!G.some((g) => D.some((d) => L.canTake(d, g)))) return { kind: 'stuck' };
-    const n = Math.min(s.count, D.length);
+    const n = Math.min(s.exchange.count, D.length); // 最後一輪不足時，只抽剩下的人
     const fixed = s.exchange.drawerMode === 'chain' ? chainNext().slice(0, n) : [];
     return { kind: 'exchange', n, fixed, D, G, feasible: L.isFeasible(D, G) };
   }
@@ -143,20 +149,20 @@
       stage.appendChild(row);
     } else if (p.kind === 'exchange') {
       const rows = el('div', 'pair-rows rows-' + p.n);
-      const ratio = p.n > 1 ? 2.3 : 2.7;
+      const ratio = p.n > 2 ? 1.24 : p.n > 1 ? 2.3 : 2.7; // 一次抽越多組，每列越矮、名字佔得越滿
       for (let j = 0; j < p.n; j++) {
         const fixedId = p.fixed[j] != null ? p.fixed[j] : null;
         const row = el('div', 'pair-row');
         const u = { fixedId, drawerReel: null, giftReel: null };
         if (fixedId != null) {
-          row.appendChild(lockedCard(fixedId));
+          row.appendChild(lockedCard(fixedId, p.n > 2));
         } else {
-          u.drawerReel = new LD.Reel({ kind: 'drawer', caption: '抽獎人', index: j * 2, faceRatio: ratio });
+          u.drawerReel = new LD.Reel({ kind: 'drawer', caption: p.n > 2 && j ? '' : '抽獎人', index: j * 2, faceRatio: ratio });
           row.appendChild(u.drawerReel.el);
           reels.push(u.drawerReel);
         }
         row.appendChild(connector(j, p.n));
-        u.giftReel = new LD.Reel({ kind: 'gift', caption: '抽中誰的禮物', index: j * 2 + 1, faceRatio: ratio });
+        u.giftReel = new LD.Reel({ kind: 'gift', caption: p.n > 2 && j ? '' : '抽中誰的禮物', index: j * 2 + 1, faceRatio: ratio });
         row.appendChild(u.giftReel.el);
         reels.push(u.giftReel);
         units.push(u);
@@ -189,8 +195,8 @@
 
   function layoutReels() { reels.forEach((r) => r.layout()); }
 
-  function lockedCard(id) {
-    return el('div', 'reel reel-locked',
+  function lockedCard(id, compact) {
+    return el('div', 'reel reel-locked' + (compact ? ' compact' : ''),
       `<div class="reel-cap">🔗 接力抽獎人</div>
        <div class="reel-window">
          <div class="locked-body">
@@ -204,7 +210,7 @@
   function connector(j, n) {
     return el('div', 'connector',
       `<div class="gift">🎁</div><div class="lbl">抽中</div><div class="chev"><b></b><b></b><b></b></div>` +
-      (n > 1 ? `<div class="pairno">第 ${j + 1} 組</div>` : ''));
+      (n > 1 ? `<div class="pairno">${n > 2 ? j + 1 : `第 ${j + 1} 組`}</div>` : ''));
   }
 
   function stageMessage(p) {
@@ -304,18 +310,31 @@
     hiddenRound = { mode: round.mode, no: round.no };
     phase = 'stopping';
     snd.rollTo(0.95);
-    const GAP = 0.85, DEC = 1.9, LAST = 2.9;
-    order.forEach((o, i) => {
-      const last = i === order.length - 1;
-      o.reel.stopAt(o.item, i * GAP, last ? LAST : DEC, (reel) => onLanded(reel, i, last));
-    });
+    if (units.length > 2 && round.mode === 'exchange') {
+      // 多組：抽獎人先快速揭曉，再一份一份開禮物
+      const drawers = order.filter((o) => o.reel.kind === 'drawer');
+      const gifts = order.filter((o) => o.reel.kind === 'gift');
+      const lead = drawers.length ? 0.9 + drawers.length * 0.26 : 0;
+      drawers.forEach((o, i) => o.reel.stopAt(o.item, i * 0.26, 1.5, (reel) => onLanded(reel, i, false)));
+      gifts.forEach((o, i) => {
+        const last = i === gifts.length - 1;
+        o.reel.stopAt(o.item, lead + i * 0.78, last ? 2.7 : 1.9, (reel) => onLanded(reel, drawers.length + i, last));
+      });
+    } else {
+      const GAP = 0.85, DEC = 1.9, LAST = 2.9;
+      order.forEach((o, i) => {
+        const last = i === order.length - 1;
+        o.reel.stopAt(o.item, i * GAP, last ? LAST : DEC, (reel) => onLanded(reel, i, last));
+      });
+    }
     updateUI();
   }
 
   function onLanded(reel, i, last) {
     snd.thunk(i);
     const c = reel.center();
-    fx.burstAt(c.x, c.y, { power: last ? 1.35 : 1, count: last ? 70 : 42 });
+    const many = reels.length > 4; // 一次很多組：每一次的火花小一點，畫面才不會太滿
+    fx.burstAt(c.x, c.y, { power: last ? 1.35 : many ? 0.75 : 1, count: last ? 70 : many ? 22 : 42 });
     if (last) finishRound();
   }
 
@@ -384,12 +403,14 @@
     const ex = round.mode === 'exchange';
     const n = ex ? round.pairs.length : round.winners.length;
     $('#celeTitle').textContent = ex ? '🎁 交換成功' : round.prize ? `🏆 ${round.prize}` : '🎉 恭喜中獎';
-    $('#celeSub').textContent = ex ? `第 ${round.no} 輪 · 抽到誰的禮物就帶走！` : `第 ${round.no} 輪 · 恭喜幸運得主`;
+    $('#celeSub').textContent = ex ? `第 ${round.no} 輪${n > 1 ? ` · ${n} 組` : ''} · 抽到誰的禮物就帶走！` : `第 ${round.no} 輪 · 恭喜幸運得主`;
     const list = $('#celeList');
-    list.className = 'cele-list n' + n;
+    list.className = 'cele-list n' + n + (n > 2 ? ' many' : '');
+    list.style.setProperty('--n', n);
+    $('#celeCard').classList.toggle('wide', n > 2);
     list.innerHTML = ex
       ? round.pairs.map((p, i) => `
-        <div class="cele-pair" style="--d:${(i * 0.35).toFixed(2)}s">
+        <div class="cele-pair" style="--d:${(i * (n > 2 ? 0.22 : 0.35)).toFixed(2)}s">
           <div class="side"><small>抽獎人 · No.${pad(p.drawer)}</small><div class="who-row">${ava(p.drawer, 'cele-ava')}<div class="cele-name">${charSpans(nameOf(p.drawer))}</div></div></div>
           <div class="arrow"><span>抽中</span><div class="chev"><b></b><b></b><b></b></div></div>
           <div class="side"><small>🎁 No.${pad(p.gift)}</small><div class="who-row">${ava(p.gift, 'cele-ava')}<div class="cele-name">${charSpans(nameOf(p.gift))}</div></div><em>的禮物</em></div>
@@ -403,7 +424,7 @@
     let next;
     if (p.kind === 'finished') next = ex ? '🎊 全部交換完成！沒有人抽到自己的禮物' : '🎊 候選池已全部抽完！';
     else if (ex && p.fixed && p.fixed.length) next = `🔗 下一位抽獎人：${p.fixed.map((id) => `<b>${esc(nameOf(id))}</b>`).join('、')}　請準備上台！`;
-    else if (ex && p.D) next = `還有 <b>${p.D.length}</b> 人尚未抽禮物`;
+    else if (ex && p.D) next = `還有 <b>${p.D.length}</b> 人尚未抽禮物` + (p.n > 1 && p.n === p.D.length ? `，下一輪是最後一輪（<b>${p.n}</b> 人）` : '');
     else if (p.pool) next = `候選池還有 <b>${p.pool.length}</b> 人`;
     else next = '';
     $('#celeNext').innerHTML = next;
@@ -425,6 +446,7 @@
     }
     $('#celebrate').classList.remove('show');
     document.body.classList.remove('is-revealed');
+    if (isMany(pending) && 'speechSynthesis' in window) window.speechSynthesis.cancel(); // 一次播報多組時，換下一輪就不再唸
     phase = 'idle';
     pending = null;
     snd.duck(false);
@@ -464,7 +486,7 @@
     const text = round.mode === 'prize'
       ? `恭喜 ${round.winners.map((id) => nameOf(id)).join('、')}${round.prize ? '，獲得' + round.prize : '，中獎'}！`
       : round.pairs.map((p) => `${nameOf(p.drawer)}，抽中 ${nameOf(p.gift)} 的禮物`).join('。') + '！';
-    setTimeout(() => speak(text), 2100);
+    setTimeout(() => { if (!isMany(round) || phase === 'revealed') speak(text); }, 2100);
   }
 
   /* =========================================================
@@ -496,7 +518,10 @@
       html = '🥁 開獎中……';
     } else if (s.mode === 'exchange') {
       const D = drawersLeft().length, G = giftsLeft().length;
-      html = `尚未抽獎 <b>${D}</b> 人 · 剩餘禮物 <b>${G}</b> 份` + (s.exchange.drawerMode === 'chain' ? ' · 🔗 接力模式' : '');
+      html = `尚未抽獎 <b>${D}</b> 人 · 剩餘禮物 <b>${G}</b> 份`;
+      const c = s.exchange.count;
+      if (c > 1 && D > c) html += ` · 還有 <b>${Math.ceil(D / c)}</b> 輪` + (D % c ? `（最後一輪 <b>${D % c}</b> 人）` : '');
+      if (s.exchange.drawerMode === 'chain') html += ' · 🔗 接力模式';
       if (D !== G) html += ' · <span class="warn">⚠️ 人數與禮物數不一致，請查核名單</span>';
     } else {
       html = `候選池 <b>${prizePool().length}</b> 人 · 已中獎 <b>${s.prize.records.length}</b> 人`;
@@ -507,15 +532,23 @@
   function updateRibbon() {
     const s = S();
     const label = s.mode === 'exchange' ? '🎁 交換禮物' : `🏆 ${esc(s.prize.prizeName.trim() || '抽禮物')}`;
-    const done = plan().kind === 'finished' && phase === 'idle';
-    $('#stageRibbon').innerHTML = done ? `${label} · 全部完成` : `${label} · 第 <b>${maxRound(visibleRecords(s.mode)) + 1}</b> 輪`;
+    const p = plan();
+    const done = p.kind === 'finished' && phase === 'idle';
+    let extra = '';
+    if (s.mode === 'exchange') {
+      // 轉動與開獎時以舞台上的組數為準（這時紀錄可能已經存檔）
+      const n = phase === 'idle' ? (p.kind === 'exchange' ? p.n : 0) : units.length;
+      if (n > 1) extra = ` · <b>${n}</b> 人`;
+      if (phase === 'idle' && p.kind === 'exchange' && n === p.D.length && maxRound(s.exchange.records)) extra = ` · 最後一輪 <b>${n}</b> 人`;
+    }
+    $('#stageRibbon').innerHTML = done ? `${label} · 全部完成` : `${label} · 第 <b>${phase === 'revealed' && pending ? pending.no : maxRound(visibleRecords(s.mode)) + 1}</b> 輪${extra}`;
   }
 
   function syncControls() {
     const s = S();
     document.body.dataset.mode = s.mode;
     $$('.mode-seg button').forEach((b) => b.classList.toggle('on', b.dataset.mode === s.mode));
-    $$('.count-seg button').forEach((b) => b.classList.toggle('on', Number(b.dataset.count) === s.count));
+    $$('.count-seg button').forEach((b) => b.classList.toggle('on', Number(b.dataset.count) === countOf(s.mode)));
     $$('.drawer-seg button').forEach((b) => b.classList.toggle('on', b.dataset.drawer === s.exchange.drawerMode));
     const pz = $('#prizeName');
     if (document.activeElement !== pz) pz.value = s.prize.prizeName;
@@ -655,13 +688,16 @@
     renderPanel();
   }
   function setCount(n) {
-    if (!idleOnly() || S().count === n) return;
-    S().count = n;
+    const s = S();
+    if (!COUNTS[s.mode].includes(n)) return;
+    if (!idleOnly() || countOf(s.mode) === n) return;
+    if (s.mode === 'exchange') s.exchange.count = n;
+    else s.count = n;
     store.save();
-    snd.blip(n === 2);
+    snd.blip(n > 1);
     syncControls();
     prepareStage();
-    toast(`一次抽 ${n} 人`);
+    toast(n > 2 ? `一次抽 ${n} 人，最後一輪抽剩下的人` : `一次抽 ${n} 人`);
   }
   function setDrawerMode(m) {
     if (!idleOnly() || S().exchange.drawerMode === m) return;
@@ -1216,6 +1252,7 @@
       switch (e.key.toLowerCase()) {
         case '1': setCount(1); break;
         case '2': setCount(2); break;
+        case '5': setCount(5); break;
         case 'm': $('#btnSound').click(); break;
         case 'b': $('#btnBgm').click(); break;
         case 'f': toggleFullscreen(); break;

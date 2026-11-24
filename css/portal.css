@@ -197,9 +197,21 @@ h2 {
   object-position: var(--ox, 50%) var(--oy, 50%);
   transform-origin: var(--ox, 50%) var(--oy, 50%);
 }
-.slide.is-active img, .slide.is-prev img { will-change: transform; animation: burnsIn 10s cubic-bezier(.3, .3, .5, 1) both; }
-.slide:nth-child(even).is-active img, .slide:nth-child(even).is-prev img { animation-name: burnsOut; }
-.slide-film video { background: var(--ink); }
+.slide:not(.slide-film).is-active img, .slide:not(.slide-film).is-prev img { will-change: transform; animation: burnsIn 10s cubic-bezier(.3, .3, .5, 1) both; }
+.slide:not(.slide-film):nth-child(even).is-active img, .slide:not(.slide-film):nth-child(even).is-prev img { animation-name: burnsOut; }
+/* 影片：下層是開場靜態圖，影片有畫面後自然蓋上去 */
+.slide-film { background: var(--ink); }
+.slide picture { display: contents; }
+.slide-film .film-poster, .slide-film video { position: absolute; inset: 0; }
+/* Logo 牆影片：牆在畫面上方，裁切時保留上緣；介於直式與 16:10 之間的螢幕改成以寬度為準，兩側的 Logo 才不會被切掉 */
+.slide-wall .film-poster, .slide-wall video { object-position: 50% 0; }
+@media (min-aspect-ratio: 801/1000) and (max-aspect-ratio: 8/5) {
+  .slide-wall .film-poster, .slide-wall video {
+    inset: 0 auto auto -16%; width: 132%; max-width: none; height: auto; aspect-ratio: 2240 / 1080;
+    -webkit-mask-image: linear-gradient(#000 76%, transparent);
+    mask-image: linear-gradient(#000 76%, transparent);
+  }
+}
 .hero.is-paused .slide img { animation-play-state: paused; }
 @keyframes slideFade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes burnsIn { from { transform: scale(1.002); } to { transform: scale(1.07); } }
@@ -213,6 +225,29 @@ h2 {
   transition: opacity .9s;
 }
 .hero.on-film .hero-shade { opacity: .72; }
+.hero.on-wall .hero-shade { opacity: 1; background: none; }
+/* Logo 牆影片：前半段卡片是白的，導覽列與標題後方要壓暗；牆拼好之後再放亮，讓 Logo 完整露出 */
+.hero-shade::before, .hero-shade::after { content: ''; position: absolute; inset: 0; opacity: 0; transition: opacity 1.2s ease; }
+.hero-shade::before {
+  background:
+    linear-gradient(180deg, rgba(5, 10, 24, .94) 0, rgba(5, 10, 24, .8) 60px, rgba(5, 10, 24, .34) 112px, rgba(5, 10, 24, 0) 176px),
+    linear-gradient(0deg, rgba(5, 10, 24, .97) 0, rgba(5, 10, 24, .9) calc(var(--bar-h) + 70px), rgba(5, 10, 24, .74) calc(var(--bar-h) + 190px), rgba(5, 10, 24, .3) calc(var(--bar-h) + 270px), rgba(5, 10, 24, 0) calc(var(--bar-h) + 350px));
+}
+.hero-shade::after {
+  background:
+    linear-gradient(180deg, rgba(5, 10, 24, .5) 0, rgba(5, 10, 24, 0) 90px),
+    linear-gradient(0deg, rgba(5, 10, 24, .92) 0, rgba(5, 10, 24, .66) calc(var(--bar-h) + 60px), rgba(5, 10, 24, .3) calc(var(--bar-h) + 190px), rgba(5, 10, 24, 0) calc(var(--bar-h) + 240px));
+}
+.hero.wall-clash .hero-shade::after { /* 標題已淡出：暗部只留給下方的控制列 */
+  background:
+    linear-gradient(180deg, rgba(5, 10, 24, .5) 0, rgba(5, 10, 24, 0) 70px),
+    linear-gradient(0deg, rgba(5, 10, 24, .94) 0, rgba(5, 10, 24, .62) var(--bar-h), rgba(5, 10, 24, 0) calc(var(--bar-h) + 90px));
+}
+.hero.on-wall .hero-shade::before { opacity: 1; }
+.hero.on-wall.wall-hold .hero-shade::before { opacity: 0; }
+.hero.on-wall.wall-hold .hero-shade::after { opacity: 1; }
+.hero-head { transition: opacity .7s ease; }
+.hero.wall-clash.wall-hold .hero-head { opacity: 0; }
 .hero-blueprint {
   position: absolute; inset: 0; z-index: 3; pointer-events: none;
   background-image:
@@ -256,15 +291,15 @@ h2 {
   font-size: clamp(2.5rem, min(5vw, 10vh), 6.4rem); line-height: 1.16; letter-spacing: .07em;
   text-shadow: 0 4px 34px rgba(5, 10, 24, .45);
 }
-.hero-title .ln { display: inline-block; overflow: hidden; padding-block: .05em; margin-block: -.05em; vertical-align: top; }
-.hero-title .ln + .ln { margin-left: .42em; }
+.hero-title .ln { display: inline-block; overflow: hidden; padding: .05em .25em .34em; margin: -.05em -.25em -.34em; vertical-align: top; }
+.hero-title .ln + .ln { margin-left: .17em; }
 .hero-title .ln > span { display: inline-block; }
 .hero-title .grad { filter: drop-shadow(0 4px 22px rgba(5, 10, 24, .5)); }
 .hero-lede {
   margin-top: clamp(8px, 1.6vh, 18px);
   font-size: clamp(.92rem, 1.15vw, 1.15rem); letter-spacing: .08em; color: rgba(237, 242, 255, .94);
   text-shadow: 0 1px 12px rgba(5, 10, 24, .75);
-  text-wrap: balance;
+  word-break: keep-all;
 }
 .hero-class {
   display: inline-block; margin-left: 1em; padding-left: 1em;
@@ -288,9 +323,19 @@ h2 {
 .hero-txt { display: grid; min-width: 0; line-height: 1.4; }
 .hero-txt b { font-weight: 500; letter-spacing: .08em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .hero-txt small { font-size: .75rem; letter-spacing: .08em; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.hero-ticks { display: flex; gap: 6px; min-width: 0; }
-.tick { flex: 1 1 0; min-width: 0; height: 32px; padding: 0; border: 0; background: none; cursor: pointer; display: flex; align-items: center; }
-.tick.is-film { flex-grow: 1.7; }
+.hero-ticks { display: flex; gap: clamp(8px, 1vw, 18px); min-width: 0; }
+.chap { flex: var(--w, 1) 1 0; min-width: 0; display: grid; align-content: center; }
+.chap-name {
+  justify-self: start; max-width: 100%; padding: 2px 0; border: 0; background: none; cursor: pointer;
+  font-size: .74rem; line-height: 1.3; letter-spacing: .1em; color: rgba(255, 255, 255, .58); white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+  transition: color .3s;
+}
+.chap-name:hover { color: #fff; }
+.chap.is-done .chap-name { color: rgba(255, 255, 255, .78); }
+.chap.is-on .chap-name { color: var(--gold-hi); }
+.chap-ticks { display: flex; gap: clamp(2px, .3vw, 5px); min-width: 0; }
+.tick { flex: 1 1 0; min-width: 0; height: 22px; padding: 0; border: 0; background: none; cursor: pointer; display: flex; align-items: center; }
 .tick i { position: relative; display: block; width: 100%; height: 2px; overflow: hidden; background: rgba(255, 255, 255, .26); transition: height .2s; }
 .tick:hover i { height: 4px; }
 .tick.is-film i { background: rgba(232, 198, 122, .42); }
@@ -301,7 +346,7 @@ h2 {
 }
 .tick.done i::after { transform: scaleX(1); opacity: .62; }
 .tick.on i::after { animation: tickFill var(--dur, 6500ms) linear forwards; }
-.hero.is-paused .tick.on i::after { animation-play-state: paused; }
+.hero.is-paused .tick.on i::after, .hero.is-waiting .tick.on i::after { animation-play-state: paused; }
 @keyframes tickFill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 .hero-ctrl { display: flex; gap: 6px; }
 .hero-ctrl button, .film-toggle {
@@ -328,7 +373,7 @@ h2 {
 .js .hero-bar { animation-delay: .9s; }
 .js .hero-hud { animation-delay: 1.05s; }
 @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-@keyframes rise { from { transform: translateY(112%); } to { transform: none; } }
+@keyframes rise { from { transform: translateY(142%); } to { transform: none; } }
 
 /* ---------- 01 抽獎入口 ---------- */
 .entry { background: radial-gradient(90% 60% at 80% 0%, rgba(31, 95, 214, .15), transparent 70%), var(--ink); }
@@ -668,9 +713,8 @@ h2 {
   .nav-badge { width: 38px; height: 38px; }
   .hero { --bar-h: 104px; }
   .hero-copy { bottom: calc(var(--bar-h) + 14px); gap: 14px; }
-  .hero-title { font-size: clamp(2.3rem, 12.4vw, 4rem); }
-  .hero-title .ln { display: block; }
-  .hero-title .ln + .ln { margin-left: 0; }
+  .hero-title { font-size: clamp(1.75rem, 9.5vw, 4rem); white-space: nowrap; }
+  .hero-title .ln + .ln { margin-left: .03em; }
   .hero-lede { font-size: .84rem; letter-spacing: .02em; }
   .hero-class { margin-left: .7em; padding-left: .7em; }
   .hero-cta { gap: 8px; flex-wrap: nowrap; }
@@ -680,7 +724,12 @@ h2 {
   .hero-cap { gap: 12px; }
   .hero-idx i { display: none; }
   .hero-ctrl button { width: 38px; height: 38px; }
-  .hero-ticks { gap: 4px; }
+  .hero-ticks { gap: 8px; }
+  .chap { flex: 1 1 0; position: relative; }
+  .chap-name { font-size: .7rem; letter-spacing: .04em; }
+  .chap-name::after { content: ''; position: absolute; inset: 0; } /* 手機的短線太細，整塊都可以點章節 */
+  .chap-ticks { gap: 2px; pointer-events: none; }
+  .tick { height: 14px; }
   .hud-corner { display: none; }
   .sec-head { flex-direction: column; align-items: flex-start; }
   .co-count { text-align: left; }

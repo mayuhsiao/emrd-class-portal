@@ -183,6 +183,42 @@ def grade(rgb_u8, scene='outdoor', exposure=0.0, sky=None, warmth=0.0, seed=7):
     return (np.clip(out, 0, 1) * 255 + 0.5).astype(np.uint8)
 
 
+def extend_bottom(im, frac):
+    """畫面下方不夠時補長：鏡射地面、逐漸模糊壓暗（只會落在標題後方的暗部）。"""
+    arr = np.asarray(im)
+    H, W = arr.shape[:2]
+    pad = round(H * frac)
+    mirror = cv2.GaussianBlur(arr[H - pad:][::-1], (0, 0), sigmaX=max(2.0, W / 260))
+    fade = np.linspace(1.0, 0.5, pad, dtype=np.float32)[:, None, None]
+    return Image.fromarray(np.concatenate([arr, (mirror * fade).astype(np.uint8)], axis=0))
+
+
+def soft_focus(im, areas, strength=1.0):
+    """把指定範圍做成景深般的柔焦（例如投影幕上的學號、名單）。
+
+    areas：[(多邊形, 保留多邊形或 None), …]，座標為原圖寬高比例；保留的部分（人物）維持清楚。
+    """
+    arr = np.asarray(im).astype(np.float32)
+    H, W = arr.shape[:2]
+    pts = lambda poly: np.array([[x * W, y * H] for x, y in poly], np.int32)
+    for poly, keep in areas:
+        mask = np.zeros((H, W), np.float32)
+        cv2.fillPoly(mask, [pts(poly)], 1.0)
+        fg = np.zeros((H, W), np.float32)
+        if keep:
+            cv2.fillPoly(fg, [pts(keep)], 1.0)
+        # 先把人物從背景挖掉再模糊，衣服的顏色才不會暈到投影幕上
+        bg = np.clip(mask * (1 - fg), 0, 1)
+        sigma = W / 300 * strength
+        num = cv2.GaussianBlur(arr * bg[..., None], (0, 0), sigmaX=sigma)
+        den = cv2.GaussianBlur(bg, (0, 0), sigmaX=sigma)
+        blurred = num / np.maximum(den, 1e-3)[..., None]
+        soft = cv2.GaussianBlur(bg, (0, 0), sigmaX=max(1.0, W / 1800))
+        k = np.clip(soft * np.clip(den * 4, 0, 1), 0, 1)[..., None]
+        arr = arr * (1 - k) + blurred * k
+    return Image.fromarray((np.clip(arr, 0, 255) + 0.5).astype(np.uint8))
+
+
 def crop_frac(im, cx, cy, w, aspect):
     """以比例指定裁切：中心 (cx, cy)、寬度 w（佔原圖寬度比例）、長寬比 aspect。"""
     W, H = im.size

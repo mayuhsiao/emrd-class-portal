@@ -12,7 +12,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@600;900&display=swap">
-  <link rel="preload" as="image" href="assets/portal/hero/h01.webp">
+  <link rel="preload" as="image" href="assets/portal/logo-wall-poster.webp" media="(min-aspect-ratio: 801/1000)" fetchpriority="high">
+  <link rel="preload" as="image" href="assets/portal/logo-wall-poster-m.webp" media="(max-aspect-ratio: 4/5)" fetchpriority="high">
   <link rel="stylesheet" href="css/portal.css">
   <script>document.documentElement.classList.add('js');</script>
 </head>
@@ -37,10 +38,16 @@
   </header>
 
   <main>
-    <!-- ===== 首屏：活動照片輪播 ===== -->
-    <section class="hero" id="top" aria-roledescription="carousel" aria-label="活動照片輪播">
+    <!-- ===== 首屏：Logo 牆動畫、校友會、臺科大影片、課堂、活動照片輪播 ===== -->
+    <section class="hero on-film on-wall" id="top" aria-roledescription="carousel" aria-label="企業 Logo 牆動畫與活動照片輪播">
       <div class="hero-stage" id="heroStage">
-        <div class="slide is-active"><img src="assets/portal/hero/h01.webp" alt="校友會大合照 · 文山農場"></div>
+        <div class="slide slide-film slide-wall is-active">
+          <picture>
+            <source media="(max-aspect-ratio: 4/5)" srcset="assets/portal/logo-wall-poster-m.webp">
+            <img class="film-poster" src="assets/portal/logo-wall-poster.webp" alt="">
+          </picture>
+          <video muted playsinline preload="auto" aria-label="EMRD 同學任職企業 Logo 牆動畫：61 家企業"></video>
+        </div>
       </div>
       <div class="hero-shade" aria-hidden="true"></div>
       <div class="hero-blueprint" aria-hidden="true"></div>
@@ -56,7 +63,7 @@
             <span class="ln"><span>研發之路</span></span>
             <span class="ln"><span class="grad">同行致遠</span></span>
           </h1>
-          <p class="hero-lede">國立臺灣科技大學 研發碩士在職專班 × 半導體研發碩士在職專班<span class="hero-class">114・115 級</span></p>
+          <p class="hero-lede">國立臺灣科技大學 研發碩士在職專班 ×&nbsp;半導體研發碩士在職專班<span class="hero-class">114・115 級</span></p>
         </div>
         <div class="hero-cta">
           <a class="btn gold" href="lucky-draw.html?mode=prize">幸運抽獎<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></a>
@@ -67,8 +74,8 @@
 
       <div class="hero-bar">
         <div class="hero-cap" id="heroCap">
-          <span class="hero-idx"><b>01</b><i>/ 11</i></span>
-          <span class="hero-txt"><b>校友會大合照</b><small>文山農場 · 2026.10.18</small></span>
+          <span class="hero-idx"><b>01</b><i>/ 23</i></span>
+          <span class="hero-txt"><b>EMRD 同學任職企業</b><small>61 家企業 · 114–115 級</small></span>
         </div>
         <div class="hero-ticks" id="heroTicks" role="group" aria-label="選擇輪播項目"></div>
         <div class="hero-ctrl">
@@ -112,7 +119,7 @@
             <div class="card-body">
               <p class="card-kicker">GIFT EXCHANGE</p>
               <h3>交換禮物</h3>
-              <p class="card-text">A 抽到 B 的禮物，保證不會抽到自己；隨機或接力決定抽獎人，最後一位也不會卡關。</p>
+              <p class="card-text">一次抽 5 人，最後一輪抽剩下的人。A 抽到 B 的禮物，保證不會抽到自己，最後一位也不會卡關。</p>
               <div class="card-foot">
                 <span class="chip" id="swapStatus">名單準備中</span>
                 <span class="go">開始交換<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg></span>

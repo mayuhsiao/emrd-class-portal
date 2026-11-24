@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """產生入口網站的素材：輪播照片、活動花絮、Logo 牆、影片與 js/portal-data.js。
+（輪播開頭的 Logo 牆動畫另由 tools/logo_film/render.mjs 算圖）
 
 用法（在專案根目錄）：python tools/build_portal.py
 新增照片：放進「素材」資料夾後，把檔名關鍵字加到下方 HERO 或 GALLERY。
@@ -17,29 +18,66 @@ import numpy as np
 from PIL import Image
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from photo_grade import load, grade, crop_frac  # noqa: E402
+from photo_grade import load, grade, crop_frac, extend_bottom, soft_focus  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, '素材')
 OUT = os.path.join(ROOT, 'assets', 'portal')
 EVENT = '校友會 · 文山農場'
 
-# 首頁輪播（16:9）。裁切：cx, cy 中心、w 寬度比例；ox, oy 是緩慢推近時的焦點。
-# 文字壓在左下，所以構圖把主體放在右上方；小朋友為主角的照片不放輪播。
+# 首頁輪播（16:9），依章節排列；film 是影片，其餘是照片。
+# 裁切：cx, cy 中心、w 寬度比例；ox, oy 是緩慢推近時的焦點；ext 是畫面下方補長的比例。
+# 文字壓在左下，所以人臉放在畫面上方六成；小朋友為主角的照片不放輪播。
+# key 可加資料夾（例如 校友會/IMG_3270），避免不同資料夾有同名檔案。
+FARM = '文山農場'
+NTUST = '臺科大'
 HERO = [
-    dict(key='2026-10-20_0029', scene='outdoor', cx=.50, cy=.60, w=1.00, ox=50, oy=40, title='校友會大合照', q=74),
-    dict(key='2026-10-20_0020', scene='outdoor', cx=.50, cy=.42, w=1.00, ox=62, oy=55, title='文山農場林蔭道', q=76),
-    dict(key='2026-10-20_0032', scene='outdoor', cx=.42, cy=.36, w=.84, ox=66, oy=38, title='相見歡'),
-    dict(key='AG5R7199', scene='outdoor', sky='grad', cx=.50, cy=.40, w=1.00, ox=58, oy=30, title='同行的夥伴'),
-    dict(key='2026-10-20_0024', scene='outdoor', cx=.36, cy=.40, w=.80, ox=62, oy=30, title='活動現場'),
-    dict(key='2026-10-20_0010', scene='shade', cx=.44, cy=.37, w=.90, ox=62, oy=36, title='笑聲不斷'),
-    dict(key='AG5R7277', scene='shade', cx=.52, cy=.40, w=1.00, ox=56, oy=32, title='涼亭下的相聚'),
-    dict(key='AG5R7215', scene='outdoor', sky='grad', cx=.44, cy=.57, w=.90, ox=62, oy=36, title='青山下的合影'),
-    # ← 這裡插入臺科大形象動畫（見 HERO_FILM_AFTER）
-    dict(key='IMG_3581', scene='indoor', cx=.50, cy=.64, w=1.00, ox=52, oy=34, title='課堂合影'),
-    dict(key='IMG_3131', scene='indoor', cx=.52, cy=.56, w=.98, ox=60, oy=42, title='課堂時光'),
+    dict(chapter='企業', film='logo-wall', title='EMRD 同學任職企業', meta='61 家企業 · 114–115 級', sec=14, ox=50, oy=30),
+
+    dict(chapter='校友會', name='alumni-01', key='2026-10-20_0029', scene='outdoor', cx=.50, cy=.60, w=1.00, ox=50, oy=40, title='校友會大合照', meta=f'{FARM} · 2026.10.18', q=74, seed=1),
+    dict(chapter='校友會', name='alumni-02', key='校友會/LINE_NOTE_251201_4', scene='outdoor', sky='grad', cx=.50, cy=.53, w=1.00, ox=50, oy=40, title='全國 EMBA 校園馬拉松接力賽', meta='第 13 屆 · 2025'),
+    dict(chapter='校友會', name='alumni-03', key='校友會/IMG_0527', scene='outdoor', sky='grad', exposure=.14, cx=.53, cy=.69, w=.82, ext=.06, ox=52, oy=40, title='校慶繞場', meta='臺科大 114 年運動大會'),
+    dict(chapter='校友會', name='alumni-04', key='校友會/IMG_3270', scene='shade', cx=.50, cy=.62, w=1.00, ext=.06, ox=52, oy=32, title='校友會烤肉', meta='高階科技研發碩士校友會'),
+    dict(chapter='校友會', name='alumni-05', key='校友會/DSC_8897', scene='indoor', warmth=4.5, exposure=.06, cx=.50, cy=.613, w=.92, ox=52, oy=30, title='校友晚宴', meta='2024.03.23'),
+    dict(chapter='校友會', name='alumni-06', key='校友會/IMG_0096', scene='indoor', cx=.50, cy=.578, w=1.00, ox=54, oy=34, title='EMRD 新生營', meta='高階科技研發碩士學位學程'),
+    dict(chapter='校友會', name='alumni-07', key='校友會/PXL_20230813_065844311', scene='indoor', cx=.475, cy=.76, w=.86, ext=.20, ox=48, oy=36, title='新生營', meta='2023.08.13'),
+
+    dict(chapter='臺科大', film='hero-bg', title='臺科大形象動畫', meta='NTUST · EMRD', sec=15, ox=50, oy=50),
+
+    dict(chapter='課堂', name='class-01', key='上課畫面/IMG_3582', scene='indoor', cx=.50, cy=.634, w=.97, ox=52, oy=40, title='課堂合影', meta=f'{NTUST} · 2026.10.17'),
+    dict(chapter='課堂', name='class-02', key='上課畫面/彭文彥老師', scene='indoor', cx=.50, cy=.472, w=1.00, ox=30, oy=34, title='彭文彥老師', meta=f'{NTUST} · 2026.11.19'),
+    dict(chapter='課堂', name='class-03', key='上課畫面/IMG_3083', scene='indoor', cx=.50, cy=.535, w=1.00, ox=30, oy=38, title='課堂講授', meta=f'{NTUST} · 2026.09.12'),
+    dict(chapter='課堂', name='class-04', key='上課畫面/IMG_3080', scene='indoor', cx=.535, cy=.629, w=.93, ox=54, oy=40, title='課堂合影', meta=f'{NTUST} · 2026.09.12'),
+    dict(chapter='課堂', name='class-05', key='上課畫面/IMG_3589', scene='indoor', cx=.50, cy=.625, w=1.00, ox=72, oy=42, title='財務管理課堂', meta=f'{NTUST} · 2026.10.17'),
+    dict(chapter='課堂', name='class-06', key='上課畫面/IMG_3082', scene='indoor', cx=.50, cy=.585, w=1.00, ox=42, oy=38, title='專注聽講', meta=f'{NTUST} · 2026.09.12'),
+    dict(chapter='課堂', name='class-07', key='IMG_3131', scene='indoor', cx=.52, cy=.56, w=.98, ox=60, oy=42, title='課堂時光', meta=f'{NTUST} · 2026.09.17', seed=10),
+
+    dict(chapter='文山農場', name='farm-01', key='2026-10-20_0020', scene='outdoor', cx=.50, cy=.42, w=1.00, ox=62, oy=55, title='文山農場林蔭道', meta=f'{FARM} · 2026.10.18', q=76, seed=2),
+    dict(chapter='文山農場', name='farm-02', key='2026-10-20_0032', scene='outdoor', cx=.42, cy=.36, w=.84, ox=66, oy=38, title='相見歡', meta=f'{FARM} · 2026.10.18', seed=3),
+    dict(chapter='文山農場', name='farm-03', key='AG5R7199', scene='outdoor', sky='grad', cx=.50, cy=.40, w=1.00, ox=58, oy=30, title='同行的夥伴', meta=f'{FARM} · 2026.10.18', seed=4),
+    dict(chapter='文山農場', name='farm-04', key='2026-10-20_0024', scene='outdoor', cx=.36, cy=.40, w=.80, ox=62, oy=30, title='活動現場', meta=f'{FARM} · 2026.10.18', seed=5),
+    dict(chapter='文山農場', name='farm-05', key='2026-10-20_0010', scene='shade', cx=.44, cy=.37, w=.90, ox=62, oy=36, title='笑聲不斷', meta=f'{FARM} · 2026.10.18', seed=6),
+    dict(chapter='文山農場', name='farm-06', key='AG5R7277', scene='shade', cx=.52, cy=.40, w=1.00, ox=56, oy=32, title='涼亭下的相聚', meta=f'{FARM} · 2026.10.18', seed=7),
+    dict(chapter='文山農場', name='farm-07', key='AG5R7215', scene='outdoor', sky='grad', cx=.44, cy=.57, w=.90, ox=62, oy=36, title='青山下的合影', meta=f'{FARM} · 2026.10.18', seed=8),
 ]
-HERO_FILM_AFTER = 8  # 影片排在第幾張照片之後：校友會 → 臺科大動畫 → 課堂
+HERO_SEC = 5.5  # 每張照片停留秒數
+
+# 投影幕上有學號、排行榜、講師履歷：網站是公開的，這些範圍做柔焦。
+# [(柔焦範圍, 要保持清楚的人物輪廓), …]，座標為原圖寬高的比例。
+SOFT_AREAS = {
+    '上課畫面/彭文彥老師': [(
+        [(.044, 0), (.197, 0), (.479, .230), (.482, .608), (.060, .774)],
+        [(.2470, .327), (.2490, .299), (.2620, .281), (.2820, .2735), (.3020, .2715), (.3210, .279), (.3350, .296), (.3410, .314),
+         (.3430, .331), (.3480, .343), (.3475, .362), (.3425, .366), (.3405, .381), (.3370, .401), (.3325, .424), (.3300, .435),
+         (.3335, .444), (.3415, .459), (.3520, .468), (.3665, .486), (.3755, .513), (.3820, .537), (.3955, .559), (.4070, .588),
+         (.4185, .606), (.4210, .631), (.4170, .652), (.4050, .670), (.3930, .673), (.3940, .699), (.3960, .860), (.3700, .920),
+         (.2240, .920), (.2180, .900), (.2220, .825), (.2310, .775), (.2395, .740), (.2360, .696), (.2300, .667), (.2230, .617),
+         (.2145, .601), (.2160, .550), (.2160, .509), (.2280, .478), (.2580, .446), (.2660, .425), (.2655, .408), (.2575, .389),
+         (.2520, .362), (.2500, .345)],
+    )],
+    '上課畫面/IMG_3083': [([(.3140, .2670), (.6085, .2815), (.6080, .5745), (.3152, .5855)], None)],
+    '上課畫面/IMG_3082': [([(.4132, .3495), (.6898, .3520), (.6873, .6238), (.4120, .6197)], None)],
+}
 
 # 背景已虛化的草地合照：用淡藍漸層取代天空遮罩，避免山稜出現硬邊
 SOFT_SKY = {'AG5R7199', 'AG5R7198', 'AG5R7203', 'AG5R7204', 'AG5R7215', 'AG5R7219', 'AG5R7222', 'AG5R7224', 'AG5R7265', 'AG5R7267'}
@@ -77,8 +115,9 @@ PHOTOS = [p for p in walk_files(SRC) if p.lower().endswith(('.jpg', '.jpeg', '.h
 
 
 def find_photo(key):
-    """用檔名關鍵字找原圖；同一張有複本時取檔名最短的那份。"""
-    hits = [p for p in PHOTOS if key in os.path.basename(p)]
+    """用檔名關鍵字找原圖（可寫成「資料夾/檔名」）；同一張有複本時取檔名最短的那份。"""
+    folder, _, stem = key.rpartition('/')
+    hits = [p for p in PHOTOS if stem in os.path.basename(p) and (not folder or os.path.basename(os.path.dirname(p)) == folder)]
     if not hits:
         raise SystemExit(f'找不到照片：{key}')
     return min(hits, key=lambda p: (len(os.path.basename(p)), p))
@@ -101,18 +140,41 @@ def save_webp(arr, path, q):
     Image.fromarray(arr).save(path, 'WEBP', quality=q, method=6)
 
 
+def hero_image(h, size=(2400, 1350)):
+    im = load(find_photo(h['key']))
+    if h['key'] in SOFT_AREAS:
+        im = soft_focus(im, SOFT_AREAS[h['key']])
+    if h.get('ext'):  # cy 一律以補長前的高度計算
+        before = im.height
+        im = extend_bottom(im, h['ext'])
+        h = dict(h, cy=h['cy'] * before / im.height)
+    return crop_frac(im, h['cx'], h['cy'], h['w'], 16 / 9).resize(size, Image.LANCZOS)
+
+
 def build_hero():
     out, data = ensure(os.path.join(OUT, 'hero')), []
     for i, h in enumerate(HERO, 1):
-        path = find_photo(h['key'])
-        date = shot_date(Image.open(path))
-        im = crop_frac(load(path), h['cx'], h['cy'], h['w'], 16 / 9).resize((2400, 1350), Image.LANCZOS)
-        name = f'h{i:02d}.webp'
-        save_webp(grade(np.asarray(im), scene=h['scene'], sky=h.get('sky'), exposure=h.get('exposure', 0.0), seed=i),
-                  os.path.join(out, name), h.get('q', 80))
-        place = '文山農場' if h['scene'] != 'indoor' else '臺科大'
-        data.append(dict(src=f'assets/portal/hero/{name}', title=h['title'], meta=f'{place} · {date}', ox=h['ox'], oy=h['oy']))
-        print('hero', name, os.path.basename(path), date, flush=True)
+        item = dict(chapter=h['chapter'], title=h['title'], meta=h['meta'], ox=h['ox'], oy=h['oy'])
+        if 'film' in h:
+            item.update(type='film', key=h['film'], src=f"assets/video/{h['film']}.mp4", sec=h['sec'])
+            if h['film'] == 'logo-wall':  # 由 tools/logo_film/render.mjs 算圖；直式螢幕用另一支
+                item.update(poster='assets/portal/logo-wall-poster.webp', srcM='assets/video/logo-wall-m.mp4',
+                            posterM='assets/portal/logo-wall-poster-m.webp')
+            else:
+                item.update(poster='assets/portal/film-first.webp')
+            data.append(item)
+            continue
+        name = h['name'] + '.webp'
+        arr = grade(np.asarray(hero_image(h)), scene=h['scene'], sky=h.get('sky'), exposure=h.get('exposure', 0.0),
+                    warmth=h.get('warmth', 0.0), seed=h.get('seed', 100 + i))
+        save_webp(arr, os.path.join(out, name), h.get('q', 80))
+        item.update(type='img', src=f'assets/portal/hero/{name}', sec=HERO_SEC)
+        data.append(item)
+        print('hero', name, h['key'], flush=True)
+    keep = {h['name'] + '.webp' for h in HERO if 'name' in h}
+    for f in os.listdir(out):  # 清掉已不在清單上的舊輪播圖
+        if f not in keep:
+            os.remove(os.path.join(out, f))
     return data
 
 
@@ -177,7 +239,7 @@ def build_video():
     vid_dir = ensure(os.path.join(ROOT, 'assets', 'video'))
     src = os.path.join(SRC, 'hero-bg.mp4')
     shutil.copyfile(src, os.path.join(vid_dir, 'hero-bg.mp4'))
-    stills = {'film-poster.webp': '13.1', 'film-traces.webp': '3.8', 'film-wafer.webp': '8.6'}
+    stills = {'film-first.webp': '0', 'film-poster.webp': '13.1', 'film-traces.webp': '3.8', 'film-wafer.webp': '8.6'}
     ensure(OUT)
     for name, t in stills.items():
         subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-ss', t, '-i', src, '-frames:v', '1', '-q:v', '82',
@@ -195,7 +257,7 @@ def main():
         build_video()
     if not only or 'hero' in only:
         data['hero'] = build_hero()
-        data['heroFilmAfter'] = HERO_FILM_AFTER
+        data.pop('heroFilmAfter', None)
     if not only or 'gallery' in only:
         data['gallery'] = build_gallery()
         data['galleryFirst'] = GALLERY_FIRST

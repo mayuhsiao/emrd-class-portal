@@ -122,7 +122,7 @@
     return picked.concat(sample(rest, count - picked.length));
   }
 
-  /** 交換禮物：抽出一輪（1 或 2 組） */
+  /** 交換禮物：抽出一輪（count 組；剩下的人不足時，只抽剩下的人） */
   function drawExchange(drawersLeft, giftsLeft, count, preferredDrawers) {
     var n = Math.min(count, drawersLeft.length);
     if (n <= 0) return { ok: false, reason: 'empty' };

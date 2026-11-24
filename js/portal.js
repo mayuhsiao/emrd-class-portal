@@ -39,24 +39,27 @@
     const sweep = $('#heroSweep');
     const playBtn = $('#heroPlay');
 
-    const items = D.hero.map((h) => Object.assign({ type: 'img', dur: 6500 }, h));
-    items.splice(D.heroFilmAfter, 0, {
-      type: 'film', src: 'assets/video/hero-bg.mp4', poster: 'assets/portal/film-poster.webp',
-      title: '臺科大形象動畫', meta: 'NTUST · EMRD', dur: 15000, ox: 50, oy: 50
-    });
+    const head = $('.hero-head', hero);
+    const TALL = window.matchMedia('(max-aspect-ratio: 4/5)'); // 直式螢幕用直式影片
+    const items = D.hero.map((h) => Object.assign({ dur: Math.round(h.sec * 1000) }, h));
     const n = items.length;
     let cur = 0;
     let token = 0;
     let userPaused = false;
     let offscreen = false;
+    let waitTimer = 0;
+
+    const isFilm = (it) => it.type === 'film';
+    const isWall = (it) => it.key === 'logo-wall';
+    const filmSrc = (it) => (TALL.matches && it.srcM) || it.src;
 
     const els = items.map((it, i) => {
-      let el = i === 0 ? $('.slide', stage) : null;
+      let el = i === 0 ? $('.slide', stage) : null; // 第一段已寫在 HTML，開頁就看得到
       if (!el) {
         el = document.createElement('div');
-        el.className = 'slide' + (it.type === 'film' ? ' slide-film' : '');
-        el.innerHTML = it.type === 'film'
-          ? `<video muted playsinline preload="none" poster="${esc(it.poster)}" aria-label="${esc(it.title)}"></video>`
+        el.className = 'slide' + (isFilm(it) ? ' slide-film' : '');
+        el.innerHTML = isFilm(it)
+          ? `<img class="film-poster" alt="" decoding="async"><video muted playsinline preload="none" aria-label="${esc(it.title)}"></video>`
           : `<img alt="${esc(it.title)} · ${esc(it.meta)}" decoding="async">`;
         stage.appendChild(el);
       }
@@ -65,20 +68,54 @@
       el.setAttribute('role', 'group');
       el.setAttribute('aria-roledescription', 'slide');
       el.setAttribute('aria-label', `第 ${i + 1} 張，共 ${n} 張：${it.title}`);
+      if (isFilm(it)) bindFilm(el, it);
       return el;
     });
 
-    ticksEl.innerHTML = items.map((it, i) =>
-      `<button type="button" class="tick${it.type === 'film' ? ' is-film' : ''}" data-i="${i}" aria-label="第 ${i + 1} 張：${esc(it.title)}"><i></i></button>`).join('');
+    // 進度條依章節分組：點章節名稱跳到該章第一張，點短線跳到那一張
+    const chapters = [];
+    items.forEach((it, i) => {
+      const last = chapters[chapters.length - 1];
+      if (last && last.name === it.chapter) last.idx.push(i);
+      else chapters.push({ name: it.chapter, idx: [i] });
+    });
+    ticksEl.innerHTML = chapters.map((c) => `
+      <div class="chap" style="--w:${c.idx.length > 1 ? c.idx.length : 2.2}">
+        <button type="button" class="chap-name" data-i="${c.idx[0]}">${esc(c.name)}</button>
+        <div class="chap-ticks">${c.idx.map((i) =>
+          `<button type="button" class="tick${isFilm(items[i]) ? ' is-film' : ''}" data-i="${i}" aria-label="第 ${i + 1} 張：${esc(items[i].title)}"><i></i></button>`).join('')}</div>
+      </div>`).join('');
     const ticks = $$('.tick', ticksEl);
+    const chapEls = $$('.chap', ticksEl);
+
+    function bindFilm(el, it) {
+      const v = $('video', el);
+      const active = () => els && els[cur] === el;
+      v.addEventListener('playing', () => { if (active()) setWaiting(false); });
+      v.addEventListener('waiting', () => { if (active()) setWaiting(true); });
+      v.addEventListener('error', () => { if (active()) setWaiting(false); });
+      if (isWall(it)) {
+        // 牆拼好之後（約 5 秒）才需要讓出畫面
+        v.addEventListener('timeupdate', () => { if (active()) hero.classList.toggle('wall-hold', v.currentTime > 5.2); });
+      }
+    }
+
+    /** 影片還在緩衝時，進度條先等它；等太久就照常往下走 */
+    function setWaiting(on) {
+      clearTimeout(waitTimer);
+      hero.classList.toggle('is-waiting', on);
+      if (on) waitTimer = setTimeout(() => hero.classList.remove('is-waiting'), 9000);
+    }
 
     function load(i) {
       const it = items[i];
       const el = els[i];
-      if (it.type === 'film') {
+      if (isFilm(it)) {
         const v = $('video', el);
+        const poster = $('.film-poster', el);
+        if (!poster.getAttribute('src')) poster.src = it.poster;
         if (!v.getAttribute('src')) {
-          v.src = it.src;
+          v.src = filmSrc(it);
           v.preload = 'auto';
         }
         return Promise.resolve();
@@ -90,7 +127,7 @@
     }
 
     function filmEl() {
-      return items[cur].type === 'film' ? $('video', els[cur]) : null;
+      return isFilm(items[cur]) ? $('video', els[cur]) : null;
     }
 
     function syncPause() {
@@ -101,8 +138,23 @@
       const v = filmEl();
       if (v) {
         if (paused) v.pause();
-        else v.play().catch(() => {});
+        else if (!v.ended) v.play().catch((e) => { if (e.name !== 'AbortError') setWaiting(false); }); // 瀏覽器不給自動播放：停在開場畫面，時間到換下一張
       }
+    }
+
+    /** 視窗較扁時標題會壓到 Logo 牆：牆拼好後標題先淡出 */
+    function checkClash() {
+      const it = items[cur];
+      let clash = false;
+      if (isWall(it)) {
+        const r = $('video', els[cur]).getBoundingClientRect();
+        const tall = TALL.matches && it.srcM;
+        const w = tall ? 1080 : 2240;
+        const h = tall ? 1920 : 1080;
+        const wallBottom = r.top + h * Math.max(r.width / w, r.height / h) * (tall ? 0.585 : 0.705);
+        clash = wallBottom > head.getBoundingClientRect().top + 6;
+      }
+      hero.classList.toggle('wall-clash', clash);
     }
 
     function renderCap() {
@@ -121,6 +173,10 @@
         t.classList.remove('on');
         if (k === cur) t.setAttribute('aria-current', 'true');
         else t.removeAttribute('aria-current');
+      });
+      chapters.forEach((c, k) => {
+        chapEls[k].classList.toggle('is-on', c.idx.includes(cur));
+        chapEls[k].classList.toggle('is-done', c.idx[c.idx.length - 1] < cur);
       });
       void ticksEl.offsetWidth; // 讓進度條重新開始
       ticks[cur].style.setProperty('--dur', items[cur].dur + 'ms');
@@ -141,11 +197,15 @@
       void el.offsetWidth; // 讓緩慢推近的動畫重新開始
       el.classList.add('is-active');
       cur = i;
-      hero.classList.toggle('on-film', items[cur].type === 'film');
+      hero.classList.toggle('on-film', isFilm(items[cur]));
+      hero.classList.toggle('on-wall', isWall(items[cur]));
+      hero.classList.remove('wall-hold');
       const v = filmEl();
       if (v) {
         try { v.currentTime = 0; } catch (e) { /* 影片尚未載入 */ }
       }
+      setWaiting(!!v && v.readyState < 3);
+      checkClash();
       if (!CALM) {
         sweep.classList.remove('go');
         void sweep.offsetWidth;
@@ -166,7 +226,7 @@
     // 進度條跑完就換下一張；暫停時進度條停住，時間不會跑掉
     ticksEl.addEventListener('animationend', (e) => { if (e.animationName === 'tickFill') show(cur + 1); });
     ticksEl.addEventListener('click', (e) => {
-      const b = e.target.closest('.tick');
+      const b = e.target.closest('.tick, .chap-name');
       if (b) show(Number(b.dataset.i));
     });
     $('#heroPrev').addEventListener('click', () => show(cur - 1));
@@ -194,10 +254,23 @@
       syncPause();
     }, { threshold: 0.2 }).observe(hero);
     document.addEventListener('visibilitychange', syncPause);
+    window.addEventListener('resize', checkClash);
+    TALL.addEventListener('change', () => { // 手機轉向：換成另一個方向的影片
+      items.forEach((it, i) => {
+        const v = it.srcM && $('video', els[i]);
+        if (!v || !v.getAttribute('src')) return;
+        v.src = filmSrc(it);
+        if (i === cur) show(cur);
+      });
+    });
 
+    load(0);
+    setWaiting(isFilm(items[0]) && $('video', els[0]).readyState < 3);
     renderCap();
     renderTicks();
     syncPause();
+    checkClash();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(checkClash);
     load(1);
   }
 

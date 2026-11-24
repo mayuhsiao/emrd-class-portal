@@ -141,7 +141,7 @@
       }
     }
     var v = Math.abs(this.vel);
-    var b = v > 6 ? Math.min(3.2, (v - 6) * 0.18) : 0;
+    var b = v > 6 && this.faceRatio >= 1.5 ? Math.min(3.2, (v - 6) * 0.18) : 0;
     if (Math.abs(b - this.blur) > 0.1 || (b === 0 && this.blur !== 0)) {
       this.blur = b;
       this.persp.style.filter = b ? 'blur(' + b.toFixed(1) + 'px)' : '';
@@ -153,7 +153,7 @@
   /** 開始轉：先往回蓄力一下，再加速到全速 */
   Reel.prototype.start = function (delay) {
     this.clearWin();
-    this.vmax = 16 + Math.random() * 6;
+    this.vmax = this.faceRatio < 1.5 ? 12.5 + Math.random() : 16 + Math.random() * 6; // 一次很多組：轉慢一點、不加模糊，筆電也順
     this.state = 'windup';
     this.t0 = clock() + (delay || 0);
     this.stopReq = null;
@@ -197,7 +197,17 @@
   Reel.prototype.step = function (dt, now) {
     var st = this.state;
     if (st === 'landed') return;
-    if (st === 'drift') {
+    if (st === 'drift' && this.faceRatio < 1.5) {
+      // 一列只看得到一個名字：一格一格換，名字才會停在框中央
+      if (this.snapT == null) {
+        this.snapT = now + this.index * 0.15;
+        this.snap0 = Math.round(this.pos);
+      }
+      var ph = Math.max(0, (now - this.snapT) / 2.2);
+      var u0 = Math.max(0, (ph % 1 - 0.72) / 0.28);
+      this.vel = 0;
+      this.pos = this.snap0 + Math.floor(ph) + u0 * u0 * (3 - 2 * u0);
+    } else if (st === 'drift') {
       this.vel = 0.45;
       this.pos += this.vel * dt;
     } else if (st === 'windup') {

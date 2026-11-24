@@ -15,8 +15,8 @@
       participants: defaultParticipants(),
       nextId: LD.DEFAULT_NAMES.length + 1,
       mode: 'exchange', // exchange 交換禮物 | prize 抽禮物
-      count: 1, // 一次抽 1 或 2 人
-      exchange: { drawerMode: 'random', records: [] }, // random 隨機抽獎人 | chain 接力
+      count: 1, // 抽禮物：一次抽 1 或 2 人
+      exchange: { drawerMode: 'random', count: 5, records: [] }, // random 隨機抽獎人 | chain 接力；count 一次抽幾人（1、2、5）
       prize: { prizeName: '', records: [] },
       settings: { sound: true, bgm: false, voice: false, panel: true }
     };
@@ -41,6 +41,7 @@
       count: raw.count === 2 ? 2 : 1,
       exchange: {
         drawerMode: raw.exchange && raw.exchange.drawerMode === 'chain' ? 'chain' : 'random',
+        count: raw.exchange && (raw.exchange.count === 1 || raw.exchange.count === 2) ? raw.exchange.count : d.exchange.count,
         records: raw.exchange && Array.isArray(raw.exchange.records) ? raw.exchange.records : []
       },
       prize: {
